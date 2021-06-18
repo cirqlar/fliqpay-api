@@ -59,7 +59,10 @@ app.use(cors(corsOptions));
 app.use(
   "/",
   createProxyMiddleware({
-    target: "http://data.fixer.io/",
+    target: {
+      host: "data.fixer.io",
+      protocol: 'http',
+    },
     pathRewrite: (path, req) => {
       return (
         "/api" +
