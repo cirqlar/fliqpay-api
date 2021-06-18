@@ -8,7 +8,7 @@ const { PORT = 8000, CORS_HOSTS = "http://localhost:3000", API_KEY } = process.e
 // Redirect to https in production
 app.use((req, res, next) => {
   if (process.env.NODE_ENV === "production") {
-    if (req.headers["x-forwarded-proto"] !== "http") {
+    if (req.headers["x-forwarded-proto"] !== "https") {
       return res.redirect("https://" + req.headers.host + req.url);
     }
     else {
