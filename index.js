@@ -1,7 +1,6 @@
 const app = require("express")();
 const cors = require("cors");
-const proxy = require("express-http-proxy");
-const { createProxyMiddleware } = require("http-proxy-middleware");
+const fetch = require("node-fetch");
 
 // Destructure env variables with sensible defaults
 const { PORT = 8000, CORS_HOSTS = "http://localhost:3000", API_KEY } = process.env;
@@ -35,45 +34,19 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Proxy requests to github api
-// app.use(
-//   "/",
-//   proxy("http://data.fixer.io/", {
-//     proxyReqPathResolver: function (req) {
-//       return (
-//         "/api" +
-//         req.path +
-//         `?access_key=${API_KEY}` +
-//         Object.entries(req.query)
-//           .map(([key, value]) => `&${key}=${value}`)
-//           .join("")
-//       );
-//     },
-//     proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
-//       proxyReqOpts.protocol = 'http:';
-//       return proxyReqOpts;
-//     },
-//   })
-// );
+app.all("*", (req, res) => {
+  const url = "http://data.fixer.io/" + (
+    "/api" +
+      req.path +
+      `?access_key=${API_KEY}` +
+      Object.entries(req.query)
+        .map(([key, value]) => `&${key}=${value}`)
+        .join("")
+  );
 
-app.use(
-  "/",
-  createProxyMiddleware({
-    target: {
-      host: "data.fixer.io",
-      protocol: 'http',
-    },
-    pathRewrite: (path, req) => {
-      return (
-        "/api" +
-        req.path +
-        `?access_key=${API_KEY}` +
-        Object.entries(req.query)
-          .map(([key, value]) => `&${key}=${value}`)
-          .join("")
-      );
-    },
-  })
-);
+  fetch(url, {
+    ...req
+  }).then(response => response.json()).then(json => res.json(json));
+});
 
 app.listen(PORT, () => console.log(`Server Running on port ${PORT}`));
