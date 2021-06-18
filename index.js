@@ -45,7 +45,9 @@ app.all("*", (req, res) => {
   );
 
   fetch(url, {
-    ...req
+    method: req.method,
+    headers: req.headers,
+    body: req.body 
   }).then(response => response.json()).then(json => res.json(json));
 });
 
