@@ -34,7 +34,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.all("*", (req, res) => {
+app.get("*", (req, res) => {
   const url = "http://data.fixer.io/" + (
     "/api" +
       req.path +
@@ -44,11 +44,7 @@ app.all("*", (req, res) => {
         .join("")
   );
 
-  fetch(url, {
-    method: req.method,
-    headers: req.headers,
-    body: req.body 
-  }).then(response => response.json()).then(json => res.json(json));
+  fetch(url).then(response => response.json()).then(json => res.json(json));
 });
 
 app.listen(PORT, () => console.log(`Server Running on port ${PORT}`));
