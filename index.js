@@ -1,6 +1,7 @@
 const app = require("express")();
 const cors = require("cors");
 const proxy = require("express-http-proxy");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 // Destructure env variables with sensible defaults
 const { PORT = 8000, CORS_HOSTS = "http://localhost:3000", API_KEY } = process.env;
@@ -10,8 +11,7 @@ app.use((req, res, next) => {
   if (process.env.NODE_ENV === "production") {
     if (req.headers["x-forwarded-proto"] !== "https") {
       return res.redirect("https://" + req.headers.host + req.url);
-    }
-    else {
+    } else {
       return next();
     }
   } else {
@@ -36,10 +36,31 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Proxy requests to github api
+// app.use(
+//   "/",
+//   proxy("http://data.fixer.io/", {
+//     proxyReqPathResolver: function (req) {
+//       return (
+//         "/api" +
+//         req.path +
+//         `?access_key=${API_KEY}` +
+//         Object.entries(req.query)
+//           .map(([key, value]) => `&${key}=${value}`)
+//           .join("")
+//       );
+//     },
+//     proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+//       proxyReqOpts.protocol = 'http:';
+//       return proxyReqOpts;
+//     },
+//   })
+// );
+
 app.use(
   "/",
-  proxy("http://data.fixer.io/", {
-    proxyReqPathResolver: function (req) {
+  createProxyMiddleware({
+    target: "http://data.fixer.io/",
+    pathRewrite: (path, req) => {
       return (
         "/api" +
         req.path +
@@ -48,10 +69,6 @@ app.use(
           .map(([key, value]) => `&${key}=${value}`)
           .join("")
       );
-    },
-    proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
-      proxyReqOpts.protocol = 'http:';
-      return proxyReqOpts;
     },
   })
 );
