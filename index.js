@@ -5,6 +5,20 @@ const proxy = require("express-http-proxy");
 // Destructure env variables with sensible defaults
 const { PORT = 8000, CORS_HOSTS = "http://localhost:3000", API_KEY } = process.env;
 
+// Redirect to https in production
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === "production") {
+    if (req.headers["x-forwarded-proto"] !== "https") {
+      return res.redirect("https://" + req.headers.host + req.url);
+    }
+    else {
+      return next();
+    }
+  } else {
+    return next();
+  }
+});
+
 // Only allow Cross Origin Requests from select hosts
 const hosts = CORS_HOSTS.split(", ");
 const corsOptions = {
@@ -35,7 +49,10 @@ app.use(
           .join("")
       );
     },
-    https: false,
+    proxyReqOptDecorator: function(proxyReqOpts, srcReq) {
+      proxyReqOpts.protocol = 'http:';
+      return proxyReqOpts;
+    },
   })
 );
 
