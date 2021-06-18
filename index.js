@@ -24,7 +24,7 @@ const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
-    if (hosts.indexOf(origin) === -1) {
+    if (hosts.some((host) => host.split("*").every(h => origin.includes(h))) === -1) {
       var msg = "The CORS policy for this site does not " + "allow access from the specified Origin.";
       return callback(new Error(msg), false);
     }
@@ -35,16 +35,18 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.get("*", (req, res) => {
-  const url = "http://data.fixer.io/" + (
-    "/api" +
+  const url =
+    "http://data.fixer.io/" +
+    ("/api" +
       req.path +
       `?access_key=${API_KEY}` +
       Object.entries(req.query)
         .map(([key, value]) => `&${key}=${value}`)
-        .join("")
-  );
+        .join(""));
 
-  fetch(url).then(response => response.json()).then(json => res.json(json));
+  fetch(url)
+    .then((response) => response.json())
+    .then((json) => res.json(json));
 });
 
 app.listen(PORT, () => console.log(`Server Running on port ${PORT}`));

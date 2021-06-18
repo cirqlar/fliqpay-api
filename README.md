@@ -16,7 +16,9 @@ npm install
 
 ### Start development server
 
-Replace `YOUR_API_KEY` with your [fixer](fixer.io) api key. Other environment variables you can set are `PORT` (the port the server will run on. Defaults to `8000`) and `CORS_HOSTS` (a comma separated list of origins that should be allowed through CORS, eg: `"http://locahost:3000, https://cirqlar.github.io"`. __NB: The space after the comma is important__. Defaults to `"http://localhost:3000"`)
+Replace `YOUR_API_KEY` with your [fixer](fixer.io) api key. Other environment variables you can set are: 
+- `PORT`: the port the server will run on. Defaults to `8000`
+- `CORS_HOSTS`: a comma separated list of origins that should be allowed through CORS, eg: `"localhost:3000, cirqlar.github.io"`. The `*` character can be used as a wildcard. __NB: The space after the comma is important__. Defaults to `"http://localhost:3000"`
 ```bash
 API_KEY=YOUR_API_KEY npm start
 ```
